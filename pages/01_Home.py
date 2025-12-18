@@ -715,7 +715,7 @@ if st.session_state.has_non_ticketed:
                 excess_pct = total_entered - 15
                 st.markdown(f"""
                 <div style="background:#fff3e0; border-left:6px solid #ff8800; padding:14px; border-radius:6px; font-weight:600; color:#e65100; margin-top:12px;">
-                    ⚠️ <strong>Excess Non-Ticketed Work:</strong> Out of {total_entered}%, we've included 15% in baseline RL. The additional {excess_pct}% has to be added as extra resource load in the dashboard.
+                    ⚠️ <strong>Excess Non-Ticketed Work:</strong> Out of {total_entered}%, we've included 15% in baseline RL. The additional {excess_pct}% will be added to H1Y1 RL in the dashboard.
                 </div>
                 """, unsafe_allow_html=True)
 
