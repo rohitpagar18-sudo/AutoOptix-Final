@@ -696,6 +696,7 @@ def render_overall_rl_section(data=None):
             # """, unsafe_allow_html=True)
             
             # Row 3: H1Y2
+            h1y2_display_value = max(7, adjusted_rl.get('H1Y2', 0))  # Show 7 if less than 7
             st.markdown(f"""
             <div class="rl-row separator" style="text-align:center;">
                 <div class="rl-cell rl-tooltip" style="display:inline-block;">
@@ -703,7 +704,7 @@ def render_overall_rl_section(data=None):
                     <span class="rl-tooltip-text" style="opacity:0.8;">140 Tickets productivity No automation</span>
                 </div>
                 <div class="rl-cell" style="display:inline-block; margin-left:20px;">
-                    <span class="rl-cell-value">{adjusted_rl.get('H1Y2', 0):.2f}</span>
+                    <span class="rl-cell-value">{h1y2_display_value:.2f}</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -733,7 +734,7 @@ def render_overall_rl_section(data=None):
                 else:
                     # Greater than 15% - need to adjust RL
                     excess_pct = total_non_ticketed_pct - 15
-                    note = f"⚠️ Non-ticketed activities: {total_non_ticketed_pct:.1f}% - Excess {excess_pct:.1f}% has to be added to RL values above (15% baseline already included). Recommended to review capacity planning."
+                    note = f"⚠️ Non-ticketed activities: {total_non_ticketed_pct:.1f}% - Excess {excess_pct:.1f}% has been added to RL values above (15% baseline already included). Recommended to review capacity planning."
                     bg_color = "#fff3e0"
                     border_color = "#ff9800"
                     text_color = "#e65100"
@@ -1050,7 +1051,7 @@ def render_gradewise_mnm_rl_section(data=None):
             text-align: center;
             padding: 8px 12px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 16px;
             position: absolute;
             z-index: 1000;
             bottom: 125%;
@@ -1080,7 +1081,7 @@ def render_gradewise_mnm_rl_section(data=None):
         
         .productivity-label {
             display:none;
-            font-size: 10px;
+            font-size: 14px;
             color: #1F6C86;
             font-weight: 700;
             text-transform: uppercase;
@@ -1096,7 +1097,7 @@ def render_gradewise_mnm_rl_section(data=None):
         }
         
         .productivity-subheader {
-            font-size: 14px;
+            font-size: 16px;
             color: #1F6C86;
             font-weight: 700;
             text-transform: uppercase;
@@ -1117,6 +1118,7 @@ def render_gradewise_mnm_rl_section(data=None):
             cursor: help;
         }
         
+        
         .tooltip-container .tooltiptext {
             visibility: hidden;
             background-color: #1F6C86;
@@ -1131,9 +1133,9 @@ def render_gradewise_mnm_rl_section(data=None):
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 11px;
+            font-size: 20px;
             white-space: normal;
-            width: 140px;
+            width: 20vw !important;
             word-wrap: break-word;
             line-height: 1.3;
         }
@@ -1151,7 +1153,7 @@ def render_gradewise_mnm_rl_section(data=None):
         
         .tooltip-container:hover .tooltiptext {
             visibility: visible;
-            opacity: 1;
+            opacity: 0.8;
         }
         
         .productivity-container {
@@ -1172,7 +1174,7 @@ def render_gradewise_mnm_rl_section(data=None):
         }
         
         .productivity-section-header {
-            font-size: 12px;
+            font-size: 19px;
             color: #1F6C86;
             font-weight: 700;
             text-transform: uppercase;

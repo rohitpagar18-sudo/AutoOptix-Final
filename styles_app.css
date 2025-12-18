@@ -121,6 +121,11 @@ button {
 
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
     color: white;
+    
+}
+[data-testid="stSidebar"] [data-testid="stSidebarNav"] {
+   
+    font-size: 32px !important;
 }
 
 /* ========================================
