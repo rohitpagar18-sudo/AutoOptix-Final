@@ -674,7 +674,7 @@ def render_overall_rl_section(data=None):
             st.markdown(f"""
             <div class="rl-row separator" style="text-align:center;">
                 <div class="rl-cell rl-tooltip" style="display:inline-block;">
-                    <span class="rl-cell-value" style="font-weight:bold;">H1Y1</span>
+                    <span class="rl-cell-value" style="font-weight:bold;">H2Y1</span>
                     <span class="rl-tooltip-text" style="opacity:0.8;">140 Tickets productivity No automation</span>
                 </div>
                 <div class="rl-cell" style="display:inline-block; margin-left:20px;">
@@ -699,7 +699,7 @@ def render_overall_rl_section(data=None):
             st.markdown(f"""
             <div class="rl-row separator" style="text-align:center;">
                 <div class="rl-cell rl-tooltip" style="display:inline-block;">
-                    <span class="rl-cell-value" style="font-weight:bold;">H1Y1</span>
+                    <span class="rl-cell-value" style="font-weight:bold;">H1Y2</span>
                     <span class="rl-tooltip-text" style="opacity:0.8;">140 Tickets productivity No automation</span>
                 </div>
                 <div class="rl-cell" style="display:inline-block; margin-left:20px;">
@@ -733,7 +733,7 @@ def render_overall_rl_section(data=None):
                 else:
                     # Greater than 15% - need to adjust RL
                     excess_pct = total_non_ticketed_pct - 15
-                    note = f"⚠️ Non-ticketed activities: {total_non_ticketed_pct:.1f}% - Excess {excess_pct:.1f}% has been added to RL values above (15% baseline already included). Recommended to review capacity planning."
+                    note = f"⚠️ Non-ticketed activities: {total_non_ticketed_pct:.1f}% - Excess {excess_pct:.1f}% has to be added to RL values above (15% baseline already included). Recommended to review capacity planning."
                     bg_color = "#fff3e0"
                     border_color = "#ff9800"
                     text_color = "#e65100"
