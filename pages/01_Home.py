@@ -1132,7 +1132,7 @@ if st.button("✅ Process & Go to Dashboard", key="process_btn_main", use_contai
                 st.success("✅ All processing complete! Preparing to navigate to Dashboard...")
                 st.info("📊 Your data is ready. You will be redirected to the Dashboard.")
                 time.sleep(2)
-                st.rerun()
+                st.switch_page("pages/02_Dashboard.py")
                 
         except Exception as e:
             progress_container.empty()
