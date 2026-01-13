@@ -621,7 +621,9 @@ if uploaded_file is not None:
                 # read each sheet
                 df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
                 sheet_data[sheet_name] = df
-                st.dataframe(df.reset_index(drop=True), use_container_width=True)
+                # Show only first 10 rows for faster preview loading
+                st.dataframe(df.head(10).reset_index(drop=True), use_container_width=True)
+                st.caption(f"Showing first 10 rows of {len(df)} total rows")
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     st.metric("Rows", len(df))
@@ -641,18 +643,21 @@ if uploaded_file is not None:
         if 'selected_sheet_for_mapping' not in st.session_state:
             st.session_state.selected_sheet_for_mapping = first_sheet
         
-        # Sheet selector if multiple sheets - ONLY rerun on sheet change
+        # Sheet selector if multiple sheets - use form to prevent rerun on selection
         if len(excel_file.sheet_names) > 1:
-            selected_sheet = st.selectbox(
-                "Select Sheet",
-                excel_file.sheet_names,
-                index=excel_file.sheet_names.index(st.session_state.selected_sheet_for_mapping),
-                key="sheet_selector_unique"
-            )
-            # Update only if changed
-            if selected_sheet != st.session_state.selected_sheet_for_mapping:
+            with st.form("sheet_selection_form", border=False):
+                selected_sheet = st.selectbox(
+                    "Select Sheet",
+                    excel_file.sheet_names,
+                    index=excel_file.sheet_names.index(st.session_state.selected_sheet_for_mapping),
+                    key="sheet_selector_unique"
+                )
+                sheet_submitted = st.form_submit_button("✓ Load Sheet", use_container_width=False)
+            
+            # Update only if sheet form submitted
+            if sheet_submitted and selected_sheet != st.session_state.selected_sheet_for_mapping:
                 st.session_state.selected_sheet_for_mapping = selected_sheet
-                st.rerun()  # Only rerun when sheet actually changes
+                st.rerun()  # Rerun only when user explicitly submits
         else:
             selected_sheet = first_sheet
             st.session_state.selected_sheet_for_mapping = selected_sheet
@@ -726,20 +731,17 @@ if uploaded_file is not None:
             st.session_state.column_mapping['assignment_group'] = assignment_group_col
             st.session_state.column_mapping['closed_month'] = closed_month_col
             st.session_state.column_mapping['priority'] = priority_col
+            st.session_state.ready_to_process = True
+            st.rerun()
         
         # Validate mappings and show status
         mapped_columns = [v for v in st.session_state.column_mapping.values() if v is not None]
         all_mapped = all(st.session_state.column_mapping.values())
         
         if all_mapped:
-            st.success("✅ All 5 mandatory columns selected!")
-            
-            # Show "Proceed" button only when all columns are mapped
-            if st.button("➡️ Proceed to Processing", use_container_width=True, key="proceed_to_processing"):
-                st.session_state.ready_to_process = True
-                st.rerun()
+            st.success("✅ All 5 columns mapped successfully!")
         else:
-            st.warning(f"⚠️ {len(mapped_columns)}/5 columns selected. Select all 5 mandatory columns to proceed.")
+            st.warning(f"⚠️ {len(mapped_columns)}/5 columns selected. Select all 5 mandatory columns.")
         
         # persist
         st.session_state.df_uploaded = sheet_data
@@ -760,8 +762,10 @@ else:
             sheet_tabs = st.tabs(sheet_names)
             for idx, sheet_name in enumerate(sheet_names):
                 with sheet_tabs[idx]:
-                    df = sheet_data[sheet_name]                    
-                    st.dataframe(df.reset_index(drop=True), use_container_width=True)
+                    df = sheet_data[sheet_name]
+                    # Show only first 10 rows for faster preview loading
+                    st.dataframe(df.head(10).reset_index(drop=True), use_container_width=True)
+                    st.caption(f"Showing first 10 rows of {len(df)} total rows")
 
                     col1, col2, col3 = st.columns(3)
                     with col1:
