@@ -51,7 +51,9 @@ def calculate_utilization_graph(df: pd.DataFrame, verbose: bool = False) -> dict
     col_closed_month = find_column(df, ["Closed Month", "ClosedMonth"])
     num_months = 1
     if col_closed_month:
-        unique_months = df[col_closed_month].dropna().unique()
+        # Filter out NaN/None and empty strings, then count unique months
+        unique_months = df[col_closed_month].dropna().astype(str).str.strip()
+        unique_months = unique_months[unique_months != ''].unique()
         num_months = len(unique_months) or 1
     
     col_elim = find_column(df, ["Elimination_Feasibility", "Elimination"])

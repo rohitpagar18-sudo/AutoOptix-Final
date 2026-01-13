@@ -54,7 +54,9 @@ def get_optimization_metrics(df: pd.DataFrame) -> dict:
     col_closed_month = find_column(df, ["Closed Month", "ClosedMonth"])
     num_months = 1
     if col_closed_month:
-        unique_months = df[col_closed_month].dropna().unique()
+        # Filter out NaN/None and empty strings, then count unique months
+        unique_months = df[col_closed_month].dropna().astype(str).str.strip()
+        unique_months = unique_months[unique_months != ''].unique()
         num_months = len(unique_months) or 1
     
     col_automation = find_column(df, ["Automation_Feasibility", "Automation"])

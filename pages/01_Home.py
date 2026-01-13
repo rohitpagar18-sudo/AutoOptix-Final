@@ -495,8 +495,9 @@ def process_excel_file(df):
         if not col_left_shift:
             raise ValueError("Column 'Left Shift' not found")
 
-        # Get number of unique months
-        unique_months = df[col_closed_month].dropna().unique()
+        # Get number of unique months (filter out NaN/None and empty strings)
+        unique_months = df[col_closed_month].dropna().astype(str).str.strip()
+        unique_months = unique_months[unique_months != ''].unique()
         num_months = len(unique_months)
         
         if num_months == 0:
