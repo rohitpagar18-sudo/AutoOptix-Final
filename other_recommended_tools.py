@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import sys
 
 
 def normalize_column_name(col_name):
@@ -108,6 +109,35 @@ def calculate_other_recommended_tools(df: pd.DataFrame) -> pd.DataFrame:
     show_p1_p2 = p1_p2_value >= 10
     show_flr = flr_value < 30
     show_triaging_effort = triaging_effort_value > 1
+    
+    # DEBUG OUTPUT - Show all calculations
+    print(f"\n[DEBUG] ===== OTHER RECOMMENDED TOOLS CALCULATIONS =====", file=sys.stderr)
+    print(f"[DEBUG] Total rows in dataframe: {total_all_tickets}", file=sys.stderr)
+    print(f"[DEBUG] Unique months: {num_months}", file=sys.stderr)
+    print(f"[DEBUG]", file=sys.stderr)
+    
+    print(f"[DEBUG] ROW 1 - P1/P2:", file=sys.stderr)
+    print(f"[DEBUG]   Total P1/P2 tickets found: {total_p1_p2}", file=sys.stderr)
+    print(f"[DEBUG]   Calculation: {total_p1_p2} / {num_months} = {p1_p2_value:.4f}", file=sys.stderr)
+    print(f"[DEBUG]   Display value: {round(p1_p2_value, 4)}", file=sys.stderr)
+    print(f"[DEBUG]   Condition (>= 10): {'✓ MET' if show_p1_p2 else '✗ NOT MET'}", file=sys.stderr)
+    print(f"[DEBUG]", file=sys.stderr)
+    
+    print(f"[DEBUG] ROW 2 - FLR (First Line Resolution):", file=sys.stderr)
+    print(f"[DEBUG]   Total L1.5 tickets: {total_l1_5}", file=sys.stderr)
+    print(f"[DEBUG]   L1.5 per month: {total_l1_5} / {num_months} = {l1_5_per_month:.4f}", file=sys.stderr)
+    print(f"[DEBUG]   Total all tickets: {total_all_tickets}", file=sys.stderr)
+    print(f"[DEBUG]   All tickets per month: {total_all_tickets} / {num_months} = {all_tickets_per_month:.4f}", file=sys.stderr)
+    print(f"[DEBUG]   FLR % calculation: ({l1_5_per_month:.4f} / {all_tickets_per_month:.4f}) * 100 = {flr_value:.2f}%", file=sys.stderr)
+    print(f"[DEBUG]   Condition (< 30%): {'✓ MET' if show_flr else '✗ NOT MET'}", file=sys.stderr)
+    print(f"[DEBUG]", file=sys.stderr)
+    
+    print(f"[DEBUG] ROW 3 - Triaging Effort:", file=sys.stderr)
+    print(f"[DEBUG]   Total L2 tickets: {total_l2}", file=sys.stderr)
+    print(f"[DEBUG]   L2 per month: {total_l2} / {num_months} = {l2_per_month:.4f}", file=sys.stderr)
+    print(f"[DEBUG]   Triaging effort (FTE): {l2_per_month:.4f} / 1300 = {triaging_effort_value:.6f} FTE", file=sys.stderr)
+    print(f"[DEBUG]   Condition (> 1 FTE): {'✓ MET' if show_triaging_effort else '✗ NOT MET'}", file=sys.stderr)
+    print(f"[DEBUG] =====================================================\n", file=sys.stderr)
     
     # Build summary rows with values and conditions for tooltips
     summary_rows = [
