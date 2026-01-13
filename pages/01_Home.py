@@ -1094,6 +1094,16 @@ if st.button("✅ Process & Go to Dashboard", key="process_btn_main", use_contai
                 
                 print(f"[DEBUG] process_dataframe returned shape: {results_df_local.shape if hasattr(results_df_local, 'shape') else 'N/A'}", file=sys.stderr)
                 
+                # Load summary data from summary_output.json that was created by process_dataframe
+                if os.path.exists("summary_output.json"):
+                    try:
+                        with open("summary_output.json", "r") as f:
+                            summary_data = json.load(f)
+                            st.session_state.summary_data = summary_data
+                            print(f"[DEBUG] Loaded summary_data from JSON: {summary_data}", file=sys.stderr)
+                    except Exception as e:
+                        print(f"[WARNING] Could not load summary_output.json: {e}", file=sys.stderr)
+                
                 st.session_state.results_df = results_df_local
                 st.session_state.processed = True
                 

@@ -664,21 +664,21 @@ def render_overall_rl_section(data=None):
                     <span class="rl-tooltip-text" style="opacity:0.8;">140 Tickets productivity No automation</span>
                 </div>
                 <div class="rl-cell" style="display:inline-block; margin-left:20px;">
-                    <span class="rl-cell-value">{adjusted_rl.get('H1Y1', 0):.2f}</span>
+                    <span class="rl-cell-value">{max(7, adjusted_rl.get('H1Y1', 0)):.2f}</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
             # Row 2: H2Y1
-
+            h2y1_display_value = max(7, adjusted_rl.get('H2Y1', 0))  # Show 7 if less than 7
             st.markdown(f"""
             <div class="rl-row separator" style="text-align:center;">
                 <div class="rl-cell rl-tooltip" style="display:inline-block;">
                     <span class="rl-cell-value" style="font-weight:bold;">H2Y1</span>
-                    <span class="rl-tooltip-text" style="opacity:0.8;">140 Tickets productivity No automation</span>
+                    <span class="rl-tooltip-text" style="opacity:0.8;">160 Tickets productivity 50% automation</span>
                 </div>
                 <div class="rl-cell" style="display:inline-block; margin-left:20px;">
-                    <span class="rl-cell-value">{adjusted_rl.get('H2Y1', 0):.2f}</span>
+                    <span class="rl-cell-value">{h2y1_display_value:.2f}</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -874,21 +874,28 @@ def render_optimization_summary_section(data=None):
     gradient_header("Efficiency Gains Breakdown")
     
     if data is None:
+        summary_data = None
+        
         # Try to load from session state first
         if 'summary_data' in st.session_state and st.session_state.summary_data:
             summary_data = st.session_state.summary_data
+            print(f"[DEBUG] Loaded summary_data from session state", file=sys.stderr)
         # Otherwise try to load from summary_output.json
         elif os.path.exists("summary_output.json"):
             try:
                 with open("summary_output.json", "r") as f:
                     summary_data = json.load(f)
+                    print(f"[DEBUG] Loaded summary_data from JSON file: {summary_data}", file=sys.stderr)
             except Exception as e:
+                print(f"[ERROR] Error loading summary data: {e}", file=sys.stderr)
                 st.error(f"Error loading summary data: {e}")
                 summary_data = None
         else:
+            print(f"[DEBUG] summary_output.json not found", file=sys.stderr)
             summary_data = None
         
         if summary_data:
+            print(f"[DEBUG] Creating efficiency breakdown with summary_data: {summary_data}", file=sys.stderr)
             data = {
                 "Optimization Approach": [
                     "Manual task Reduction",
@@ -916,6 +923,7 @@ def render_optimization_summary_section(data=None):
                 ]
             }
         else:
+            print(f"[WARNING] No summary_data available - showing empty table", file=sys.stderr)
             data = {
                 "Optimization Approach": [
                     "Manual task Reduction",
@@ -944,6 +952,10 @@ def render_other_tools_section(data=None):
             merged_df = st.session_state.merged_df
             tools_df, raw_data = calculate_other_recommended_tools(merged_df)
             
+            import sys
+            print(f"[DEBUG] Other tools raw_data: {raw_data}", file=sys.stderr)
+            print(f"[DEBUG] Other tools raw_data conditions_met: {raw_data['conditions_met']}", file=sys.stderr)
+            
             # Build a 1-column display: Only Tools (if condition met)
             tools_mapping = {
                 "P1/P2": "CRTSIT Assist",
@@ -956,17 +968,28 @@ def render_other_tools_section(data=None):
             # P1/P2
             if raw_data["conditions_met"]["p1_p2_show"]:
                 tool_recommendations.append(tools_mapping["P1/P2"])
+                print(f"[DEBUG] Added P1/P2 tool - condition met", file=sys.stderr)
+            else:
+                print(f"[DEBUG] P1/P2 tool NOT added - condition not met (value: {raw_data['p1_p2']} < 10)", file=sys.stderr)
             
             # FLR
             if raw_data["conditions_met"]["flr_show"]:
                 tool_recommendations.append(tools_mapping["FLR"])
+                print(f"[DEBUG] Added FLR tool - condition met", file=sys.stderr)
+            else:
+                print(f"[DEBUG] FLR tool NOT added - condition not met (value: {raw_data['flr_percentage']}% >= 30%)", file=sys.stderr)
             
             # Triaging Effort
             if raw_data["conditions_met"]["triaging_effort_show"]:
                 tool_recommendations.append(tools_mapping["Triaging Effort"])
+                print(f"[DEBUG] Added Triaging tool - condition met", file=sys.stderr)
+            else:
+                print(f"[DEBUG] Triaging tool NOT added - condition not met (value: {raw_data['triaging_effort']} <= 1)", file=sys.stderr)
             
             # Service Improvement (always shown)
             tool_recommendations.append("Ticket Quality Audit Tool")
+            print(f"[DEBUG] Added Ticket Quality Audit Tool (always shown)", file=sys.stderr)
+            print(f"[DEBUG] Final tool_recommendations: {tool_recommendations}", file=sys.stderr)
             
             # Create display DataFrame with only Tools column
             display_data = {
