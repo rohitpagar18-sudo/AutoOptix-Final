@@ -1,0 +1,603 @@
+/* ========================================
+   STYLES FOR pages/02_Dashboard.py
+   Analytics and Dashboard Page
+   ======================================== */
+
+/* Root variables */
+:root {
+    --primary-color: #0066cc;
+    --secondary-color: #00a8e8;
+    --accent-color: #00d9ff;
+    --success-color: #00b894;
+    --warning-color: #fdcb6e;
+    --danger-color: #d63031;
+    --teal-start: #2E8CA8;
+    --teal-end: #1F6C86;
+    --teal: #2E8CA8;
+    --light-teal: #BFE2EA;
+    --grid-line-color: #D9D9D9;
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+    }
+}
+
+/* ========================================
+   GLOBAL ELEMENTS
+   ======================================== */
+
+* {
+    transition: all 0.3s ease;
+}
+
+button {
+    transition: all 0.3s ease !important;
+}
+
+.main {
+    animation: fadeIn 0.6s ease-out;
+}
+
+[data-testid="stMarkdownContainer"] {
+    animation: fadeIn 0.5s ease-out;
+}
+
+[data-testid="stMetricValue"] {
+    animation: scaleIn 0.5s ease-out;
+}
+
+/* ========================================
+   HEADER BAR & SECTION HEADERS
+   ======================================== */
+
+#header-bar {
+    background: linear-gradient(90deg, #2e8ca8, #1f6c86);
+    color: white;
+    font-weight: bold;
+    font-size: 14pt;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 102, 204, 0.15);
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.header-bar {
+    background: linear-gradient(90deg, #2e8ca8, #1f6c86);
+    color: white;
+    font-weight: bold;
+    font-size: 14pt;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 102, 204, 0.15);
+    animation: slideInLeft 0.5s ease-out;
+    text-align: center;
+    height: 28px;
+    line-height: 28px;
+}
+
+/* ========================================
+   DATA VALIDATION ALERT
+   ======================================== */
+
+#no-data-alert {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #d32f2f;
+    animation: slideInLeft 0.5s ease-out;
+}
+
+#no-data-alert h3 {
+    color: #c62828;
+    margin-top: 0;
+}
+
+/* ========================================
+   DONUT CHART SECTION
+   ======================================== */
+
+#donut-chart-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+    animation: fadeIn 0.6s ease-out;
+}
+
+#donut-elimination {
+    text-align: center;
+}
+
+#donut-automation-standard {
+    text-align: center;
+}
+
+#donut-automation-agentic {
+    text-align: center;
+}
+
+/* ========================================
+   RESOURCE LOAD SECTION
+   ======================================== */
+
+#resource-load-section {
+    margin: 30px 0;
+}
+
+#resource-load-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#resource-load-table th {
+    background: linear-gradient(90deg, #2e8ca8, #1f6c86);
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid var(--grid-line-color);
+    height: 24px;
+}
+
+#resource-load-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--grid-line-color);
+    font-family: "Segoe UI, Calibri, sans-serif";
+    font-size: 10pt;
+}
+
+#resource-load-note {
+    background: #fff4e5;
+    border-left: 6px solid #ff8800;
+    padding: 14px;
+    border-radius: 6px;
+    font-weight: 800;
+    color: #4b2c00;
+    margin-top: 12px;
+}
+
+/* ========================================
+   OPTIMIZATION SUMMARY SECTION
+   ======================================== */
+
+#optimization-summary-section {
+    margin: 30px 0;
+}
+
+#optimization-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#optimization-summary-table th {
+    background: linear-gradient(90deg, #2e8ca8, #1f6c86);
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid var(--grid-line-color);
+    height: 24px;
+}
+
+#optimization-summary-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--grid-line-color);
+    font-family: "Segoe UI, Calibri, sans-serif";
+    font-size: 10pt;
+}
+
+/* ========================================
+   RECOMMENDED TOOLS SECTION
+   ======================================== */
+
+#recommended-tools-section {
+    margin: 30px 0;
+}
+
+#tools-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tools-table th {
+    background: linear-gradient(90deg, var(--teal-start), var(--teal-end));
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid var(--grid-line-color);
+    height: 24px;
+}
+
+#tools-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--grid-line-color);
+    font-family: "Segoe UI, Calibri, sans-serif";
+    font-size: 10pt;
+}
+
+#metrics-column {
+    font-weight: 600;
+    color: #0066cc;
+}
+
+#tools-column {
+    color: #333;
+}
+
+/* ========================================
+   EXPANDER SECTIONS
+   ======================================== */
+
+#condition-thresholds-expander {
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    margin-top: 15px;
+}
+
+.stExpander {
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+}
+
+/* ========================================
+   CONDITION THRESHOLDS INFO
+   ======================================== */
+
+#threshold-col-1 {
+    padding-right: 20px;
+}
+
+#threshold-col-1-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0066cc;
+    margin-bottom: 10px;
+}
+
+#threshold-col-2 {
+    padding-left: 20px;
+}
+
+#threshold-col-2-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0066cc;
+    margin-bottom: 10px;
+}
+
+#threshold-metrics-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+#threshold-metrics-list li {
+    padding: 5px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+#threshold-status-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+#threshold-status-list li {
+    padding: 5px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+/* ========================================
+   BUTTONS & INTERACTIVE ELEMENTS
+   ======================================== */
+
+#clear-btn {
+    width: 100%;
+}
+
+.stButton > button {
+    background: linear-gradient(135deg, #0066cc 0%, #004499 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px 28px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.2) !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
+}
+
+.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* ========================================
+   METRICS & VALUES
+   ======================================== */
+
+#metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0066cc;
+    animation: slideDown 0.5s ease-out;
+}
+
+#metric-label {
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    animation: fadeIn 0.5s ease-out;
+}
+
+[data-testid="stMetric"] {
+    animation: scaleIn 0.5s ease-out;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #0066cc;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.08);
+}
+
+/* ========================================
+   DATAFRAMES & TABLES
+   ======================================== */
+
+.stDataFrame {
+    animation: fadeIn 0.5s ease-out;
+}
+
+[data-testid="stDataFrame"] {
+    font-family: "Segoe UI, Calibri, sans-serif";
+}
+
+/* ========================================
+   COLUMNS & LAYOUTS
+   ======================================== */
+
+.stColumns {
+    gap: 20px;
+}
+
+#left-col {
+    flex: 1;
+}
+
+#right-col {
+    flex: 1;
+}
+
+#col1-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+#col2-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ========================================
+   CHARTS & VISUALIZATIONS
+   ======================================== */
+
+#donut-chart {
+    animation: scaleIn 0.5s ease-out;
+}
+
+#line-chart {
+    animation: fadeIn 0.6s ease-out;
+}
+
+#bar-chart {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* ========================================
+   ALERTS & NOTIFICATIONS
+   ======================================== */
+
+.stAlert {
+    animation: slideInLeft 0.4s ease-out;
+    border-radius: 6px;
+}
+
+#warning-alert {
+    background-color: #fff3cd;
+    border-left: 4px solid #ff8800;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+#error-alert {
+    background-color: #f8d7da;
+    border-left: 4px solid #d32f2f;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* ========================================
+   DOWNLOAD BUTTONS
+   ======================================== */
+
+#download-results-btn {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+    #donut-chart-section {
+        grid-template-columns: 1fr;
+    }
+
+    .header-bar {
+        font-size: 12pt;
+        padding: 10px 15px;
+    }
+
+    #resource-load-table,
+    #optimization-summary-table,
+    #tools-table {
+        font-size: 9pt;
+    }
+
+    #metric-value {
+        font-size: 18px;
+    }
+
+    .stButton > button {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.color-primary {
+    color: var(--primary-color);
+}
+
+.color-secondary {
+    color: var(--secondary-color);
+}
+
+.color-success {
+    color: var(--success-color);
+}
+
+.color-warning {
+    color: var(--warning-color);
+}
+
+.color-danger {
+    color: var(--danger-color);
+}
+
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.padding-small {
+    padding: 10px;
+}
+
+.padding-medium {
+    padding: 20px;
+}
+
+.padding-large {
+    padding: 30px;
+}
+
+.margin-small {
+    margin: 10px;
+}
+
+.margin-medium {
+    margin: 20px;
+}
+
+.margin-large {
+    margin: 30px;
+}
+
+.border-radius-small {
+    border-radius: 4px;
+}
+
+.border-radius-medium {
+    border-radius: 8px;
+}
+
+.border-radius-large {
+    border-radius: 12px;
+}
