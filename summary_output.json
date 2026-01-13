@@ -1,24 +1,24 @@
 {
-    "total_count_ofL1.5": 11962,
-    "total_count_ofL2": 10073,
+    "total_count_ofL1.5": 13043,
+    "total_count_ofL2": 10610,
     "elimination_array": [
         12,
-        179.5,
-        1.28
+        181.17,
+        1.29
     ],
     "automation_array": [
-        70,
-        1407.5,
-        10.05
+        73,
+        1567.17,
+        11.19
     ],
     "automation_agent_array": [
         9,
-        88.17,
-        0.63
+        97.17,
+        0.69
     ],
     "left_shift_array": [
-        84,
-        1993.67,
-        14.24
+        87,
+        2173.83,
+        15.53
     ]
 }

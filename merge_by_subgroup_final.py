@@ -408,7 +408,12 @@ def merge_file(df_input: pd.DataFrame, source_filename: str = None) -> Tuple[pd.
     matched_count = sum(1 for r in all_results if r["matched"])
     unmatched_count = len(all_results) - matched_count
     print(f"[DEBUG] After Pass 3: {matched_count} matched, {unmatched_count} unmatched", file=sys.stderr)
+    
+    # Initialize output lists
+    output_rows = []
+    unmatched_rows = []
     first_matches = []
+    
     for result in all_results:
         in_idx = result["input_index"]
         input_row = df_input.loc[in_idx]
