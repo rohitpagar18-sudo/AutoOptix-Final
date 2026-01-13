@@ -630,30 +630,39 @@ if uploaded_file is not None:
                 with col3:
                     st.metric("File Size", f"{uploaded_file.size / 1024:.1f} KB")
         
-        # NEW: Column Selection UI
+        # NEW: Column Selection UI with sheet selector
         st.markdown('### 🔧 Step 2B: Map Columns to Required Fields')
-        st.info("Select which sheet and columns correspond to the 5 mandatory fields.")
+        st.info("1. Select the sheet containing ticket data, 2. Map the 5 mandatory columns, 3. Click Proceed")
         
         # Get sheet names
         first_sheet = excel_file.sheet_names[0]
         
-        # Sheet selector if multiple sheets
+        # Initialize session state for sheet selection
+        if 'selected_sheet_for_mapping' not in st.session_state:
+            st.session_state.selected_sheet_for_mapping = first_sheet
+        
+        # Sheet selector if multiple sheets - ONLY rerun on sheet change
         if len(excel_file.sheet_names) > 1:
-            st.write("**Select the sheet containing your ticket data:**")
             selected_sheet = st.selectbox(
-                "Available Sheets",
+                "Select Sheet",
                 excel_file.sheet_names,
-                index=0,
-                key="sheet_selector"
+                index=excel_file.sheet_names.index(st.session_state.selected_sheet_for_mapping),
+                key="sheet_selector_unique"
             )
+            # Update only if changed
+            if selected_sheet != st.session_state.selected_sheet_for_mapping:
+                st.session_state.selected_sheet_for_mapping = selected_sheet
+                st.rerun()  # Only rerun when sheet actually changes
         else:
             selected_sheet = first_sheet
+            st.session_state.selected_sheet_for_mapping = selected_sheet
+            st.write(f"**Sheet Selected:** {selected_sheet}")
         
         # Get columns from selected sheet
-        df_for_mapping = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
+        df_for_mapping = pd.read_excel(uploaded_file, sheet_name=st.session_state.selected_sheet_for_mapping)
         available_columns = list(df_for_mapping.columns)
         
-        st.write(f"**Columns in '{selected_sheet}':** {len(available_columns)} columns")
+        st.write(f"**Columns in '{st.session_state.selected_sheet_for_mapping}':** {len(available_columns)} columns")
         
         # Initialize session state for column mapping
         if 'column_mapping' not in st.session_state:
@@ -665,57 +674,72 @@ if uploaded_file is not None:
                 'priority': None
             }
         
-        if 'selected_sheet' not in st.session_state:
-            st.session_state.selected_sheet = selected_sheet
+        # Use a form to prevent rerun on every selectbox change
+        st.markdown("**Map the 5 mandatory columns:**")
+        with st.form("column_mapping_form", border=False):
+            col_map_cols = st.columns(2)
+            
+            with col_map_cols[0]:
+                ticket_id_col = st.selectbox(
+                    "🔹 Ticket ID Column",
+                    [None] + available_columns,
+                    index=0 if st.session_state.column_mapping['ticket_id'] is None else (available_columns.index(st.session_state.column_mapping['ticket_id']) + 1 if st.session_state.column_mapping['ticket_id'] in available_columns else 0),
+                    key="ticket_id_col_form"
+                )
+                
+                description_col = st.selectbox(
+                    "🔹 Description Column",
+                    [None] + available_columns,
+                    index=0 if st.session_state.column_mapping['description'] is None else (available_columns.index(st.session_state.column_mapping['description']) + 1 if st.session_state.column_mapping['description'] in available_columns else 0),
+                    key="description_col_form"
+                )
+                
+                assignment_group_col = st.selectbox(
+                    "🔹 Assignment Group Column",
+                    [None] + available_columns,
+                    index=0 if st.session_state.column_mapping['assignment_group'] is None else (available_columns.index(st.session_state.column_mapping['assignment_group']) + 1 if st.session_state.column_mapping['assignment_group'] in available_columns else 0),
+                    key="assignment_group_col_form"
+                )
+            
+            with col_map_cols[1]:
+                closed_month_col = st.selectbox(
+                    "🔹 Date/Closed Month Column",
+                    [None] + available_columns,
+                    index=0 if st.session_state.column_mapping['closed_month'] is None else (available_columns.index(st.session_state.column_mapping['closed_month']) + 1 if st.session_state.column_mapping['closed_month'] in available_columns else 0),
+                    key="closed_month_col_form"
+                )
+                
+                priority_col = st.selectbox(
+                    "🔹 Priority Column",
+                    [None] + available_columns,
+                    index=0 if st.session_state.column_mapping['priority'] is None else (available_columns.index(st.session_state.column_mapping['priority']) + 1 if st.session_state.column_mapping['priority'] in available_columns else 0),
+                    key="priority_col_form"
+                )
+            
+            # Submit button - only rerun when user clicks this
+            form_submitted = st.form_submit_button("✓ Confirm Column Mapping", use_container_width=True)
         
-        # Update selected sheet in session
-        st.session_state.selected_sheet = selected_sheet
+        # Update session state only when form is submitted
+        if form_submitted:
+            st.session_state.column_mapping['ticket_id'] = ticket_id_col
+            st.session_state.column_mapping['description'] = description_col
+            st.session_state.column_mapping['assignment_group'] = assignment_group_col
+            st.session_state.column_mapping['closed_month'] = closed_month_col
+            st.session_state.column_mapping['priority'] = priority_col
         
-        # Create column selection widgets
-        st.write("**Map the 5 mandatory columns:**")
-        col_map_cols = st.columns(2)
-        with col_map_cols[0]:
-            st.session_state.column_mapping['ticket_id'] = st.selectbox(
-                "🔹 Ticket ID Column",
-                [None] + available_columns,
-                index=0 if st.session_state.column_mapping['ticket_id'] is None else (available_columns.index(st.session_state.column_mapping['ticket_id']) + 1 if st.session_state.column_mapping['ticket_id'] in available_columns else 0),
-                key="ticket_id_col"
-            )
-            st.session_state.column_mapping['description'] = st.selectbox(
-                "🔹 Description Column",
-                [None] + available_columns,
-                index=0 if st.session_state.column_mapping['description'] is None else (available_columns.index(st.session_state.column_mapping['description']) + 1 if st.session_state.column_mapping['description'] in available_columns else 0),
-                key="description_col"
-            )
-            st.session_state.column_mapping['assignment_group'] = st.selectbox(
-                "🔹 Assignment Group Column",
-                [None] + available_columns,
-                index=0 if st.session_state.column_mapping['assignment_group'] is None else (available_columns.index(st.session_state.column_mapping['assignment_group']) + 1 if st.session_state.column_mapping['assignment_group'] in available_columns else 0),
-                key="assignment_group_col"
-            )
-        
-        with col_map_cols[1]:
-            st.session_state.column_mapping['closed_month'] = st.selectbox(
-                "🔹 Date/Closed Month Column",
-                [None] + available_columns,
-                index=0 if st.session_state.column_mapping['closed_month'] is None else (available_columns.index(st.session_state.column_mapping['closed_month']) + 1 if st.session_state.column_mapping['closed_month'] in available_columns else 0),
-                key="closed_month_col"
-            )
-            st.session_state.column_mapping['priority'] = st.selectbox(
-                "🔹 Priority Column",
-                [None] + available_columns,
-                index=0 if st.session_state.column_mapping['priority'] is None else (available_columns.index(st.session_state.column_mapping['priority']) + 1 if st.session_state.column_mapping['priority'] in available_columns else 0),
-                key="priority_col"
-            )
-        
-        # Validate mappings
+        # Validate mappings and show status
         mapped_columns = [v for v in st.session_state.column_mapping.values() if v is not None]
         all_mapped = all(st.session_state.column_mapping.values())
         
         if all_mapped:
             st.success("✅ All 5 mandatory columns selected!")
+            
+            # Show "Proceed" button only when all columns are mapped
+            if st.button("➡️ Proceed to Processing", use_container_width=True, key="proceed_to_processing"):
+                st.session_state.ready_to_process = True
+                st.rerun()
         else:
-            st.warning(f"⚠️ {len(mapped_columns)}/5 columns selected. Please select all 5 mandatory columns to proceed.")
+            st.warning(f"⚠️ {len(mapped_columns)}/5 columns selected. Select all 5 mandatory columns to proceed.")
         
         # persist
         st.session_state.df_uploaded = sheet_data
@@ -887,14 +911,15 @@ st.markdown('### ✅ Step 4: Process Data')
 # Determine if button should be enabled
 has_uploaded = (uploaded_file is not None) or ('df_uploaded' in st.session_state and st.session_state.df_uploaded)
 is_non_ticketed_complete = st.session_state.get('non_ticketed_step_complete', False)
+is_column_mapping_complete = st.session_state.get('ready_to_process', False)
 
-# Button is enabled if: has_uploaded AND (non-ticketed step is complete OR user never entered non-ticketed)
-button_enabled = has_uploaded and (is_non_ticketed_complete or st.session_state.has_non_ticketed is None)
+# Button is enabled if: column mapping done AND (non-ticketed step is complete OR user never entered non-ticketed)
+button_enabled = is_column_mapping_complete and (is_non_ticketed_complete or st.session_state.has_non_ticketed is None)
 
 # Show button
 if st.button("✅ Process & Go to Dashboard", key="process_btn_main", use_container_width=True, disabled=not button_enabled):
     if not button_enabled:
-        st.error("Please complete non-ticketed configuration first (or select 'NO').")
+        st.error("Please complete column mapping and non-ticketed configuration first.")
     else:
         # Create progress container
         progress_container = st.container()
