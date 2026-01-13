@@ -25,6 +25,32 @@ def normalize_value(val):
     return str(val).strip().lower()
 
 
+def extract_priority_number(val):
+    """Extract priority number from value like '1- planning', 'moderate 2', 'p1', etc."""
+    if pd.isna(val):
+        return None
+    
+    val_str = str(val).strip().lower()
+    
+    # If it's already just a number (1, 2, 3, 4, 5)
+    if val_str in ['1', '2', '3', '4', '5']:
+        return val_str
+    
+    # If it's p1, p2, etc.
+    if val_str.startswith('p') and len(val_str) > 1:
+        num = val_str[1]
+        if num in ['1', '2', '3', '4', '5']:
+            return num
+    
+    # Extract number from strings like "1- planning", "moderate 2", etc.
+    import re
+    match = re.search(r'[1-5]', val_str)
+    if match:
+        return match.group(0)
+    
+    return None
+
+
 def calculate_other_recommended_tools(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate 'Other Recommended Tools' table with 5 rows.
@@ -62,9 +88,9 @@ def calculate_other_recommended_tools(df: pd.DataFrame) -> pd.DataFrame:
     total_l2 = df[col_l1l2].apply(normalize_value).eq("l2").sum()
     total_all_tickets = len(df)
     
-    # Count P1 and P2 rows (count rows where Priority contains "P1" or "P2")
-    priority_col_normalized = df[col_priority].apply(normalize_value)
-    total_p1_p2 = priority_col_normalized.isin(["p1", "p2"]).sum()
+    # Count P1 and P2 rows (extract priority number and check if it's 1 or 2)
+    priority_numbers = df[col_priority].apply(extract_priority_number)
+    total_p1_p2 = priority_numbers.isin(["1", "2"]).sum()
     
     # Row 1: P1/P2 = total P1/P2 count / total number of months
     p1_p2_value = total_p1_p2 / num_months if num_months > 0 else 0
