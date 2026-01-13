@@ -632,12 +632,28 @@ if uploaded_file is not None:
         
         # NEW: Column Selection UI
         st.markdown('### 🔧 Step 2B: Map Columns to Required Fields')
-        st.info("Select which columns correspond to the 5 mandatory fields. We'll auto-detect similar columns.")
+        st.info("Select which sheet and columns correspond to the 5 mandatory fields.")
         
-        # Get first sheet data for column selection
+        # Get sheet names
         first_sheet = excel_file.sheet_names[0]
-        df_for_mapping = pd.read_excel(uploaded_file, sheet_name=first_sheet)
+        
+        # Sheet selector if multiple sheets
+        if len(excel_file.sheet_names) > 1:
+            st.write("**Select the sheet containing your ticket data:**")
+            selected_sheet = st.selectbox(
+                "Available Sheets",
+                excel_file.sheet_names,
+                index=0,
+                key="sheet_selector"
+            )
+        else:
+            selected_sheet = first_sheet
+        
+        # Get columns from selected sheet
+        df_for_mapping = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
         available_columns = list(df_for_mapping.columns)
+        
+        st.write(f"**Columns in '{selected_sheet}':** {len(available_columns)} columns")
         
         # Initialize session state for column mapping
         if 'column_mapping' not in st.session_state:
@@ -649,7 +665,14 @@ if uploaded_file is not None:
                 'priority': None
             }
         
+        if 'selected_sheet' not in st.session_state:
+            st.session_state.selected_sheet = selected_sheet
+        
+        # Update selected sheet in session
+        st.session_state.selected_sheet = selected_sheet
+        
         # Create column selection widgets
+        st.write("**Map the 5 mandatory columns:**")
         col_map_cols = st.columns(2)
         with col_map_cols[0]:
             st.session_state.column_mapping['ticket_id'] = st.selectbox(
