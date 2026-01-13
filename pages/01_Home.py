@@ -960,6 +960,10 @@ if st.button("✅ Process & Go to Dashboard", key="process_btn_main", use_contai
                 col_mapping = st.session_state.column_mapping
                 rename_dict = {}
                 
+                import sys
+                print(f"[DEBUG] Column mapping from session: {col_mapping}", file=sys.stderr)
+                print(f"[DEBUG] DataFrame columns before mapping: {list(df_to_process.columns)}", file=sys.stderr)
+                
                 # Create rename mapping (old_col -> new_col)
                 if col_mapping.get('ticket_id'):
                     rename_dict[col_mapping['ticket_id']] = 'Ticket ID'
@@ -972,14 +976,21 @@ if st.button("✅ Process & Go to Dashboard", key="process_btn_main", use_contai
                 if col_mapping.get('priority'):
                     rename_dict[col_mapping['priority']] = 'Priority'
                 
+                print(f"[DEBUG] Rename dict: {rename_dict}", file=sys.stderr)
+                
                 # Rename columns
                 if rename_dict:
                     df_to_process = df_to_process.rename(columns=rename_dict)
+                    print(f"[DEBUG] DataFrame columns after mapping: {list(df_to_process.columns)}", file=sys.stderr)
                     
                     # Convert date column to mmm-yyyy format
                     if 'Closed Month' in df_to_process.columns:
                         from process_excel import convert_to_mmm_yyyy
                         df_to_process['Closed Month'] = df_to_process['Closed Month'].apply(convert_to_mmm_yyyy)
+            else:
+                import sys
+                print(f"[DEBUG] No column mapping in session state", file=sys.stderr)
+                print(f"[DEBUG] DataFrame columns: {list(df_to_process.columns)}", file=sys.stderr)
 
             progress_text.text("✓ Data loaded successfully (20%)")
             progress_bar.progress(20)

@@ -210,7 +210,8 @@ def merge_file(df_input: pd.DataFrame, source_filename: str = None) -> Tuple[pd.
 
     desc_col = find_column_case_insensitive(df_input, ["description"])
     if desc_col is None:
-        raise ValueError("Input DataFrame missing 'description' column")
+        print(f"[DEBUG] Available columns: {list(df_input.columns)}", file=sys.stderr)
+        raise ValueError(f"Input DataFrame missing 'description' column. Available columns: {list(df_input.columns)}")
 
     subgroup_col = find_column_case_insensitive(df_lookup, ["subgroup"])
     if subgroup_col is None:
