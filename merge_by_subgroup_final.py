@@ -120,7 +120,7 @@ def match_keyword_in_text_pass2(text: str, keywords: List[str]) -> Optional[Tupl
     
     Algorithm:
     1. Check ALL keywords with RapidFuzz (no pre-filtering)
-    2. Use moderate threshold (50%) to catch fuzzy matches
+    2. Use moderate threshold (45%) to catch more fuzzy matches
     3. Only invoked for records that didn't match in Pass 1
     
     Returns: (keyword, score, details) or None
@@ -132,9 +132,9 @@ def match_keyword_in_text_pass2(text: str, keywords: List[str]) -> Optional[Tupl
     if not text_lower:
         return None
     
-    # Pass 2: Check all keywords with moderate threshold
+    # Pass 2: Check all keywords with moderate threshold (45% - more lenient)
     best_match = None
-    best_score = 0.50  # Lowered from 65% to 50% to catch more matches
+    best_score = 0.45  # Lowered from 50% to 45% to catch more matches
     
     # Score all keywords
     scores = []
@@ -158,6 +158,59 @@ def match_keyword_in_text_pass2(text: str, keywords: List[str]) -> Optional[Tupl
         'step2_passed': True,
         'step2_reason': f'Pass 2: RapidFuzz score: {best_score:.2f}',
         'algorithm': 'pass2_fuzzy_matching',
+        'matched_words': 0,
+        'description_words': len(text_words)
+    }
+    
+    return (best_match, best_score, verification_details)
+
+
+def match_keyword_in_text_pass3(text: str, keywords: List[str]) -> Optional[Tuple[str, float, Dict]]:
+    """
+    PASS 3: ULTRA-LENIENT KEYWORD MATCHING for stubborn unmatched records
+    
+    Algorithm:
+    1. Check ALL keywords with RapidFuzz (no pre-filtering)
+    2. Use very low threshold (35%) to catch even loose matches
+    3. Only invoked for records that didn't match in Pass 1 or Pass 2
+    
+    Returns: (keyword, score, details) or None
+    """
+    if not text or not keywords:
+        return None
+    
+    text_lower = text.lower().strip()
+    if not text_lower:
+        return None
+    
+    # Pass 3: Check all keywords with lenient threshold (35%)
+    best_match = None
+    best_score = 0.35  # Very lenient - catches even loose associations
+    
+    # Score all keywords
+    scores = []
+    for kw in keywords:
+        kw_lower = kw.lower()
+        score = fuzz.token_set_ratio(text_lower, kw_lower) / 100.0
+        if score >= best_score:
+            scores.append((score, kw))
+    
+    if not scores:
+        return None
+    
+    # Get the best match
+    best_score, best_match = max(scores, key=lambda x: x[0])
+    
+    text_words = [w for w in text_lower.split() if w and w not in STOP_WORDS and len(w) >= 2]
+    
+    verification_details = {
+        'step1_passed': False,
+        'step1_reason': 'No word overlap in Pass 1',
+        'step2_passed': False,
+        'step2_reason': 'No match in Pass 2 (45% threshold)',
+        'step3_passed': True,
+        'step3_reason': f'Pass 3: Ultra-lenient RapidFuzz score: {best_score:.2f}',
+        'algorithm': 'pass3_ultra_lenient_matching',
         'matched_words': 0,
         'description_words': len(text_words)
     }
@@ -322,9 +375,39 @@ def merge_file(df_input: pd.DataFrame, source_filename: str = None) -> Tuple[pd.
 
     matched_count = sum(1 for r in all_results if r["matched"])
     unmatched_count = len(all_results) - matched_count
-
-    output_rows = []
-    unmatched_rows = []
+    
+    # PASS 3: Ultra-lenient matching for remaining stubborn unmatched records
+    unmatched_indices = [r["input_index"] for r in all_results if not r["matched"]]
+    print(f"[DEBUG] Pass 3: Ultra-lenient matching on {len(unmatched_indices)} stubborn unmatched records", file=sys.stderr)
+    
+    for result in all_results:
+        if result["matched"]:
+            continue  # Already matched in Pass 1 or 2
+        
+        in_idx = result["input_index"]
+        desc_str = result["description"]
+        
+        # Try Pass 3 matching (ultra-lenient fuzzy search at 35% threshold)
+        match = match_keyword_in_text_pass3(desc_str, keywords_unique)
+        
+        if match:
+            keyword_norm, score, verification = match
+            result["keyword"] = keyword_norm
+            result["score"] = score
+            result["verification"] = verification
+            result["matched"] = True
+            lookup_entry = keyword_to_row.get(keyword_norm)
+            if lookup_entry:
+                result["lookup_data"] = {
+                    "lookup_index": lookup_entry["lookup_index"],
+                    "lookup_row": lookup_entry["lookup_row"],
+                    "original_keyword": lookup_entry["original_keyword"]
+                }
+    
+    # Update match counts after all 3 passes
+    matched_count = sum(1 for r in all_results if r["matched"])
+    unmatched_count = len(all_results) - matched_count
+    print(f"[DEBUG] After Pass 3: {matched_count} matched, {unmatched_count} unmatched", file=sys.stderr)
     first_matches = []
     for result in all_results:
         in_idx = result["input_index"]
