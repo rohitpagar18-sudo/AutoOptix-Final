@@ -93,6 +93,16 @@ except Exception as e:
     print(f"[DEBUG] populate_dashboard not available (optional): {type(e).__name__}", file=sys.stderr)
     populate_dashboard = None
 
+# ⭐ Import Text Cleaning + Rarity-Weighted Matcher
+try:
+    print(f"[DEBUG] Attempting to import RarityWeightedMatcher...", file=sys.stderr)
+    from PRODUCTION_MATCHER import RarityWeightedMatcher, TextCleaner
+    text_matcher_available = True
+    print(f"[SUCCESS] Imported RarityWeightedMatcher for keyword matching", file=sys.stderr)
+except Exception as e:
+    print(f"[DEBUG] RarityWeightedMatcher not available: {type(e).__name__}", file=sys.stderr)
+    text_matcher_available = False
+
 st.set_page_config(
     page_title="AutoOptix - Home",
     layout="wide",
@@ -457,9 +467,75 @@ def toggle_activity_checkbox(activity_name):
     if current_state:  # was checked, now unchecking
         st.session_state.selected_activities[activity_name]['percentage'] = 0
 
+# ⭐ NEW: Apply text cleaning and keyword matching to descriptions
+def apply_text_cleaning_and_matching(df):
+    """
+    Apply text cleaning and rarity-weighted keyword matching to ticket descriptions
+    Adds 4 new columns: Cleaned_Description, Matched_Keyword, UseCase, Match_Confidence
+    """
+    if not text_matcher_available:
+        print("[INFO] Text matcher not available, skipping text cleaning", file=sys.stderr)
+        return df
+    
+    try:
+        print(f"[INFO] Initializing RarityWeightedMatcher...", file=sys.stderr)
+        # Initialize matcher
+        lookup_path = os.path.join(parent_dir, "lookup.xlsx")
+        if not os.path.exists(lookup_path):
+            print(f"[ERROR] lookup.xlsx not found at {lookup_path}", file=sys.stderr)
+            return df
+        
+        df_lookup = pd.read_excel(lookup_path)
+        matcher = RarityWeightedMatcher(df_lookup)
+        
+        # Add new columns
+        df['Cleaned_Description'] = ""
+        df['Matched_Keyword'] = ""
+        df['Matched_UseCase'] = ""
+        df['Match_Confidence'] = 0.0
+        
+        # Find description column
+        desc_columns = ["Description", "Ticket Description", "Summary", "Summary Description"]
+        desc_col = None
+        for col in desc_columns:
+            if col in df.columns:
+                desc_col = col
+                break
+        
+        if desc_col is None:
+            print(f"[DEBUG] Description column not found (optional)", file=sys.stderr)
+            return df
+        
+        print(f"[INFO] Processing {len(df)} tickets for text cleaning...", file=sys.stderr)
+        
+        # Process each row
+        for idx, row in df.iterrows():
+            ticket_desc = row[desc_col]
+            
+            if pd.notna(ticket_desc) and str(ticket_desc).strip():
+                result = matcher.find_best_match(str(ticket_desc))
+                
+                if result:
+                    df.at[idx, 'Cleaned_Description'] = result['cleaned_text']
+                    df.at[idx, 'Matched_Keyword'] = result['keyword']
+                    df.at[idx, 'Matched_UseCase'] = result['usecase']
+                    df.at[idx, 'Match_Confidence'] = result['confidence']
+        
+        print(f"[SUCCESS] Text cleaning complete", file=sys.stderr)
+        return df
+        
+    except Exception as e:
+        print(f"[ERROR] Text cleaning failed: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[ERROR] Traceback: {traceback.format_exc()}", file=sys.stderr)
+        return df
+
 def process_excel_file(df):
     """Process Excel file and generate optimization summary."""
     try:
+        # ⭐ APPLY TEXT CLEANING FIRST (NEW STEP)
+        print(f"[INFO] Starting text cleaning and keyword matching...", file=sys.stderr)
+        df = apply_text_cleaning_and_matching(df)
+        print(f"[INFO] Text cleaning complete. DataFrame shape: {df.shape}", file=sys.stderr)
         # If new merge/process APIs exist, prefer using them (but here df is already the uploaded sheet)
         if process_dataframe is not None:
             # process_dataframe expects merged/enriched DF. If the uploaded sheet is already merged, call directly.
