@@ -15,6 +15,7 @@ def convert_to_mmm_yyyy(date_value):
     - DateTime objects
     - Strings in various formats: mm-yyyy, mmm-yyyy, yyyy-mm, dd/mm/yyyy, etc.
     - Timestamps
+    - Dates like 8/09/2025 (interpreted as M/D/YYYY - August 9, 2025)
     
     Returns: 'mmm-yyyy' format or original value if conversion fails
     """
@@ -30,7 +31,15 @@ def convert_to_mmm_yyyy(date_value):
         if isinstance(date_value, str):
             date_str = str(date_value).strip()
             
-            # Try common date formats
+            # Remove timestamp/time if present (anything after space or 'T')
+            # Handles formats like "8/09/2025 14:30:00" or "2025-01-01T10:30:00"
+            if ' ' in date_str:
+                date_str = date_str.split(' ')[0]  # Get part before space
+            if 'T' in date_str:
+                date_str = date_str.split('T')[0]  # Get part before T (ISO format)
+            
+            # Try common date formats - ORDER MATTERS
+            # Try more specific formats first, then general ones
             formats = [
                 '%m-%Y',        # 01-2025
                 '%m-%y',        # 01-25
@@ -41,8 +50,8 @@ def convert_to_mmm_yyyy(date_value):
                 '%Y-%m',        # 2025-01
                 '%Y-%b',        # 2025-Jan
                 '%m/%Y',        # 01/2025
-                '%d/%m/%Y',     # 01/01/2025
-                '%m/%d/%Y',     # 01/01/2025
+                '%m/%d/%Y',     # 08/09/2025 (MM/DD/YYYY format - August 9, 2025)
+                '%d/%m/%Y',     # 09/08/2025 (DD/MM/YYYY format - 9th August 2025)
                 '%Y/%m/%d',     # 2025/01/01
                 '%d-%m-%Y',     # 01-01-2025
                 '%Y-%m-%d',     # 2025-01-01
