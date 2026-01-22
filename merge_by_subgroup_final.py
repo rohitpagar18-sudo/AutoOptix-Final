@@ -426,9 +426,6 @@ def merge_file(df_input: pd.DataFrame, source_filename: str = None) -> Tuple[pd.
         if result["matched"] and result["lookup_data"]:
             lookup_row = result["lookup_data"]["lookup_row"]
             enriched["Matched_Keyword"] = result["lookup_data"].get("original_keyword", result["keyword"])
-            enriched["Match_Score"] = round(result["score"], 2)
-            enriched["Verification_Step1"] = result["verification"]["step1_reason"]
-            enriched["Verification_Step2"] = result["verification"]["step2_reason"]
             enriched["UseCase"] = lookup_row.get(usecase_col) if usecase_col else ""
             enriched["Automation_Feasibility"] = lookup_row.get(automation_col) if automation_col else ""
             enriched["Automation_Approach"] = lookup_row.get(approach_col) if approach_col else ""
@@ -445,7 +442,6 @@ def merge_file(df_input: pd.DataFrame, source_filename: str = None) -> Tuple[pd.
             })
         else:
             enriched["Matched_Keyword"] = ""
-            enriched["Match_Score"] = 0.0
             enriched["UseCase"] = "Others"
             enriched["Automation_Feasibility"] = "Unknown"
             enriched["Automation_Approach"] = "Unknown"
